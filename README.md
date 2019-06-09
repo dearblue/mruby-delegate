@@ -52,6 +52,7 @@ end
   - Author: [dearblue](https://github.com/dearblue)
   - Project page: <https://github.com/dearblue/mruby-delegate>
   - Licensing: [Creative Commons Zero License (CC0; likely Public Domain)](LICENSE)
+  - Required mruby version: 1.4.0 or later
   - Object code size: 2 Ki bytes on FreeBSD 12.0 AMD64 with clang
   - Heap usages per one delegate instance (on FreeBSD 12.0 AMD64):
       - 48 bytes: delegator object
