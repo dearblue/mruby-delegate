@@ -90,7 +90,7 @@ delegator_getobj(mrb_state *mrb, mrb_value self)
 {
   mrb_get_args(mrb, "");
 
-  mrb_raise(mrb, E_NOTIMP_ERROR, "need to define `__setobj__' method");
+  mrb_raise(mrb, E_NOTIMP_ERROR, "need to define `__getobj__' method");
 
   return mrb_nil_value(); /* not reached here */
 }
