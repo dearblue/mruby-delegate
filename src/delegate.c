@@ -14,6 +14,12 @@
 # define ELEMENTOF(V) (sizeof(V) / sizeof((V)[0]))
 #endif
 
+#if MRUBY_RELEASE_NO < 10400
+typedef struct RProc *mrb_method_t;
+
+# define MRB_METHOD_UNDEF_P(M) ((M) == NULL)
+#endif
+
 #if MRUBY_RELEASE_NO < 20000
 static void
 mrb_undef_method_id(mrb_state *mrb, struct RClass *c, mrb_sym mid)
