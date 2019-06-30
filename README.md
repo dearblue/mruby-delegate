@@ -1,24 +1,26 @@
 # mruby-delegate
 
-mruby 上で利用可能な、移譲オブジェクトです。
+([日本語で書かれた原文 / Written original README in Japanese](README.ja.md))
 
-CRuby の標準添付ライブラリである `delegate` を模倣しているつもりです。
+Delegated object available on mruby.
 
-
-## 注意と制限
-
-CRuby と同じような実装にはなっていません。
-
-  - `Delegator` クラスの直接の親は `BasicObject` で、カスタマイズされた `Kernel` オブジェクトは `include` されません。
-  - `Delegator` インスタンスに移譲先オブジェクトのメソッドが定義されるのではなく、`method_missing` メソッド経由での呼び出しとなります。  
-    これはヒープメモリの節約のためです。
-  - CRuby で定義される `DelegatorClass` メソッドは未定義です。
-  - CRuby で定義されるいくつかの `Delegator` インスタンスメソッドは未定義です。
+I'm trying to mimic `Delegate`, which is a standard attachment library of CRuby.
 
 
-## くみこみかた
+## Cautions and limitations
 
-`build_config.rb` に gem として追加して、mruby をビルドして下さい。
+It is not an implementation similar to CRuby.
+
+  - The immediate parent of the `Delegator` class is `BasicObject`, and customized `Kernel` objects do not `include`.
+  - The `Delegator` instance does not define the method of the delegate object, but it will be called via the `method_missing` method.
+    This is to save heap memory.
+  - The `DelegatorClass` method defined in CRuby is undefined.
+  - Some `Delegator` instance methods defined in CRuby are undefined.
+
+
+## How to install
+
+Build mruby by adding it as a gem to `build_config.rb`.
 
 ```ruby
 MRuby::Build.new do |conf|
@@ -28,7 +30,7 @@ end
 
 - - - -
 
-mruby gem パッケージとして依存したい場合、`mrbgem.rake` に記述して下さい。
+If you want to depend on the mruby gem package, write it in `mrbgem.rake`.
 
 ```ruby
 # mrbgem.rake
@@ -39,9 +41,9 @@ end
 ```
 
 
-## つかいかた
+## How to use
 
-たぶん <https://docs.ruby-lang.org/ja/latest/library/delegate.html> の通りに動作します……するといいな。
+Maybe it works as <https://docs.ruby-lang.org/ja/latest/library/delegate.html> ... hopefully.
 
 
 ## Specification

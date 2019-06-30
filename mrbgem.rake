@@ -2,7 +2,7 @@
 
 MRuby::Gem::Specification.new("mruby-delegate") do |s|
   s.summary = "Delegator implementation for mruby"
-  version = File.read(File.join(__dir__, "README.md")).scan(/^\s*[\-\*] version:\s*(\d+(?:\.\w+)+)/i).flatten[-1]
+  version = File.read(File.join(__dir__, "README.ja.md")).scan(/^\s*[\-\*] version:\s*(\d+(?:\.\w+)+)/i).flatten[-1]
   s.version = version if version
   s.license = "CC0"
   s.author  = "dearblue"
