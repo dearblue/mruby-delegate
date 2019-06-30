@@ -76,6 +76,8 @@ delegator_initialize(mrb_state *mrb, mrb_value self)
   mrb_funcall_argv(mrb, self, id_x_setobj_x, 1, &target);
 
   const mrb_sym specials[] = {
+    mrb_intern_lit(mrb, "__id__"),
+    mrb_intern_lit(mrb, "__send__"),
     mrb_intern_lit(mrb, "__getobj__"),
     mrb_intern_lit(mrb, "__setobj__"),
     mrb_intern_lit(mrb, "method_missing"),
