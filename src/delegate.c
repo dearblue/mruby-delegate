@@ -41,20 +41,10 @@ match_symtab(mrb_sym sym, int num, const mrb_sym tab[])
   return FALSE;
 }
 
-static mrb_value
-delegator_initialize(mrb_state *mrb, mrb_value self)
+static void
+undef_methods_for_delegation(mrb_state *mrb, mrb_value obj, mrb_value target, size_t nkeep, const mrb_sym keeps[])
 {
-  mrb_value target;
-  mrb_get_args(mrb, "o", &target);
-  mrb_funcall_argv(mrb, self, id_x_setobj_x, 1, &target);
-
-  mrb_sym specials[] = {
-    mrb_intern_lit(mrb, "__getobj__"),
-    mrb_intern_lit(mrb, "__setobj__"),
-    mrb_intern_lit(mrb, "method_missing"),
-  };
-
-  struct RClass *deleg_c = mrb_class_ptr(mrb_singleton_class(mrb, self));
+  struct RClass *deleg_c = mrb_class_ptr(mrb_singleton_class(mrb, obj));
   struct RClass *c = mrb_class(mrb, target);
   while (c) {
     khash_t(mt) *h = c->mt;
@@ -64,7 +54,7 @@ delegator_initialize(mrb_state *mrb, mrb_value self)
           mrb_method_t m = kh_value(h, i);
           if (!MRB_METHOD_UNDEF_P(m)) {
             mrb_sym mid = kh_key(h, i);
-            if (!match_symtab(mid, ELEMENTOF(specials), specials) &&
+            if (!match_symtab(mid, nkeep, keeps) &&
                 mrb_obj_respond_to(mrb, deleg_c, mid)) {
               mrb_undef_method_id(mrb, deleg_c, mid);
             }
@@ -76,6 +66,21 @@ delegator_initialize(mrb_state *mrb, mrb_value self)
     if (c->super == c) { break; }
     c = c->super;
   }
+}
+
+static mrb_value
+delegator_initialize(mrb_state *mrb, mrb_value self)
+{
+  mrb_value target;
+  mrb_get_args(mrb, "o", &target);
+  mrb_funcall_argv(mrb, self, id_x_setobj_x, 1, &target);
+
+  const mrb_sym specials[] = {
+    mrb_intern_lit(mrb, "__getobj__"),
+    mrb_intern_lit(mrb, "__setobj__"),
+    mrb_intern_lit(mrb, "method_missing"),
+  };
+  undef_methods_for_delegation(mrb, self, target, ELEMENTOF(specials), specials);
 
   return self;
 }
