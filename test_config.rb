@@ -24,7 +24,16 @@ YAML
 
 MRuby::Lockfile.disable rescue nil
 
+begin
+  require "mruby/source"
+rescue LoadError
+  $: << File.join(MRUBY_ROOT, "lib")
+  require "mruby/source"
+end
+
 config["builds"].each_pair do |n, c|
+  next if MRuby::Source::MRUBY_RELEASE_NO == 20001 && Array(c.dig("defines")).include?("MRB_NAN_BOXING")
+
   MRuby::Build.new(n) do |conf|
     toolchain :clang
 
