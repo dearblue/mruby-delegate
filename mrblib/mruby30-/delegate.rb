@@ -5,3 +5,4 @@ class Delegator
     __getobj__.__send__(*args, &block)
   end
 end
+

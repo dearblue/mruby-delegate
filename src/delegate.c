@@ -9,23 +9,10 @@
 #include <mruby/error.h>
 #include <mruby/proc.h>
 #include <stdlib.h>
+#include "compat.h"
 
 #ifndef ELEMENTOF
 # define ELEMENTOF(V) (sizeof(V) / sizeof((V)[0]))
-#endif
-
-#if MRUBY_RELEASE_NO < 10400
-typedef struct RProc *mrb_method_t;
-
-# define MRB_METHOD_UNDEF_P(M) ((M) == NULL)
-#endif
-
-#if MRUBY_RELEASE_NO < 20000
-static void
-mrb_undef_method_id(mrb_state *mrb, struct RClass *c, mrb_sym mid)
-{
-  mrb_undef_method(mrb, c, mrb_sym2name(mrb, mid));
-}
 #endif
 
 #define id_x_setobj_x   mrb_intern_lit(mrb, "__setobj__")
@@ -41,28 +28,37 @@ match_symtab(mrb_sym sym, int num, const mrb_sym tab[])
   return FALSE;
 }
 
+struct undef_methods_for_delegation_undef
+{
+  struct RClass *delegate_class;
+  size_t nkeep;
+  const mrb_sym *keeps;
+};
+
+static int
+undef_methods_for_delegation_undef(mrb_state *mrb, mrb_sym mid, mrb_method_t m, void *opaque)
+{
+  struct undef_methods_for_delegation_undef *p = (struct undef_methods_for_delegation_undef *)opaque;
+
+  if (!match_symtab(mid, p->nkeep, p->keeps) &&
+      mrb_obj_respond_to(mrb, p->delegate_class, mid)) {
+    mrb_undef_method_id(mrb, p->delegate_class, mid);
+  }
+
+  return 0;
+}
+
 static void
 undef_methods_for_delegation(mrb_state *mrb, mrb_value obj, mrb_value target, size_t nkeep, const mrb_sym keeps[])
 {
-  struct RClass *deleg_c = mrb_class_ptr(mrb_singleton_class(mrb, obj));
   struct RClass *c = mrb_class(mrb, target);
-  while (c) {
-    khash_t(mt) *h = c->mt;
-    if (h && kh_size(h) > 0) {
-      for (khint_t i = kh_begin(h); i < kh_end(h); i ++) {
-        if (kh_exist(h, i)) {
-          mrb_method_t m = kh_value(h, i);
-          if (!MRB_METHOD_UNDEF_P(m)) {
-            mrb_sym mid = kh_key(h, i);
-            if (!match_symtab(mid, nkeep, keeps) &&
-                mrb_obj_respond_to(mrb, deleg_c, mid)) {
-              mrb_undef_method_id(mrb, deleg_c, mid);
-            }
-          }
-        }
-      }
-    }
+  struct undef_methods_for_delegation_undef args = {
+    mrb_class_ptr(mrb_singleton_class(mrb, obj)),
+    nkeep, keeps
+  };
 
+  while (c) {
+    mrb_mt_foreach(mrb, c, undef_methods_for_delegation_undef, (void *)&args);
     if (c->super == c) { break; }
     c = c->super;
   }
