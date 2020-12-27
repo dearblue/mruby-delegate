@@ -49,7 +49,7 @@ end
 ## Specification
 
   - Package name: mruby-delegate
-  - Version: 0.1
+  - Version: 0.2
   - Product quality: CONCEPT
   - Author: [dearblue](https://github.com/dearblue)
   - Project page: <https://github.com/dearblue/mruby-delegate>
