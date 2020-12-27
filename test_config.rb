@@ -12,11 +12,11 @@ config = YAML.load <<'YAML'
     - :core: "mruby-bin-mruby"
   builds:
     host:
-      defines: MRB_INT64
+      defines: [MRB_NO_BOXING, MRB_INT64]
     host-int32:
-      defines: MRB_INT32
-    host-nan-int16:
-      defines: [MRB_INT16, MRB_NAN_BOXING]
+      defines: [MRB_NO_BOXING, MRB_INT32]
+    host-nan:
+      defines: MRB_NAN_BOXING
     host++-word:
       defines: MRB_WORD_BOXING
       c++abi: true
@@ -39,10 +39,11 @@ config["builds"].each_pair do |n, c|
     Array(c["gems"]).each { |*g| gem *g }
 
     gem __dir__ do |g|
-      if g.cc.command =~ /\\b(?:g?cc|clang)\\d*\\b/
-        g.cc.flags << "-std=c11" unless c["c++abi"]
-        g.cc.flags << "-pedantic"
-        g.cc.flags << "-Wall"
+      if g.cc.command =~ /\b(?:g?cc|clang)\d*\b/
+        g.cxx.flags << "-std=c++11"
+        g.cxx.flags << %w(-pedantic -Wall -Wextra)
+        g.cc.flags << (c["c++abi"] ? "-std=c++11" : "-std=c11")
+        g.cc.flags << %w(-Wpedantic -Wall -Wextra)
       end
     end
   end
